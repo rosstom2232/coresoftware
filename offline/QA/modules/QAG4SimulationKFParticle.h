@@ -5,6 +5,7 @@
 
 #include <fun4all/SubsysReco.h>
 
+#include <g4eval/SvtxClusterEval.h>
 #include <g4eval/SvtxEvalStack.h>
 
 #include <CLHEP/Vector/LorentzVector.h> 
@@ -38,11 +39,15 @@ class QAG4SimulationKFParticle : public SubsysReco
   std::string get_histo_prefix();
 
   void setTrackMapName(const std::string &name) { m_trackMapName = name; }
+  
+ protected:
+   SvtxClusterEval *clustereval = nullptr;
 
  private:
   int load_nodes(PHCompositeNode *);
 
   SvtxTrack *getTrack(unsigned int track_id, SvtxTrackMap *trackmap);
+  PHG4Particle *getTruthTrack(SvtxTrack* thisTrack);
   CLHEP::HepLorentzVector* makeHepLV(PHCompositeNode *topNode, int track_number);
 
   PHG4TruthInfoContainer *m_truthContainer = nullptr;
