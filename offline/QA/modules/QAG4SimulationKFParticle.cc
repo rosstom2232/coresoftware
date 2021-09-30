@@ -76,7 +76,7 @@ int QAG4SimulationKFParticle::Init(PHCompositeNode */*topNode*/)
   TH1 *h(nullptr);
 
   h = new TH1F(TString(get_histo_prefix()) + "D0_InvMass",  //
-               ";Entries;m_{K^{-}#pi^{+}} [GeV/c^{2}]", 50, 1.75, 1.95);
+               ";m_{K^{-}#pi^{+}} [GeV/c^{2}];Entries", 200, 1, 2);
   hm->registerHisto(h);
 
   return Fun4AllReturnCodes::EVENT_OK;
@@ -106,12 +106,12 @@ int QAG4SimulationKFParticle::process_event(PHCompositeNode *topNode)
     SvtxTrack* thisTrack = getTrack(key, m_trackMap);
     CLHEP::HepLorentzVector *theVector = makeHepLV(topNode, thisTrack->get_id());
     if (theVector) daughters.push_back(*theVector);
-  } 
-  for(auto& output : daughters)
-  { 
-    cout << output.px() << ", " << output.py() << ", " << output.pz() << ", " << output.e() << endl;
   }
- 
+  if (daughters.size() >= 2)
+  {
+    CLHEP::HepLorentzVector mother = daughters[0] + daughters[1];
+    h_mass->Fill(mother.m());
+  }  
   daughters.clear();
   return Fun4AllReturnCodes::EVENT_OK;
 }
@@ -197,10 +197,8 @@ CLHEP::HepLorentzVector* QAG4SimulationKFParticle::makeHepLV(PHCompositeNode *to
           if (track_PDGID == 321) mass = 0.494;
           else if (track_PDGID == 211) mass = 0.139;
           else continue;
-          lvParticle = new CLHEP::HepLorentzVector(track->get_px()
-                                           ,track->get_py()
-                                           ,track->get_pz()
-                                           ,mass);
+          lvParticle = new CLHEP::HepLorentzVector();
+          lvParticle->setVectM(CLHEP::Hep3Vector(track->get_px(),track->get_py(),track->get_pz()),mass);	  
         }
         else continue;
         break;
