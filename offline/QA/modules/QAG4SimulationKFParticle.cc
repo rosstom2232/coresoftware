@@ -76,7 +76,7 @@ int QAG4SimulationKFParticle::Init(PHCompositeNode */*topNode*/)
   TH1 *h(nullptr);
 
   h = new TH1F(TString(get_histo_prefix()) + "D0_InvMass",  //
-               "D0_InvMass;InvMass;Count", 50, 1.75, 1.95);
+               ";Entries;m_{K^{-}#pi^{+}} [GeV/c^{2}]", 50, 1.75, 1.95);
   hm->registerHisto(h);
 
   return Fun4AllReturnCodes::EVENT_OK;
@@ -94,8 +94,7 @@ int QAG4SimulationKFParticle::process_event(PHCompositeNode *topNode)
   Fun4AllHistoManager *hm = QAHistManagerDef::getHistoManager();
   assert(hm);
 
-  TH1D *h_mass = dynamic_cast<TH1D *>(hm->getHisto(
-      get_histo_prefix() + "D0_InvMass"));
+  TH1F *h_mass = dynamic_cast<TH1F *>(hm->getHisto(get_histo_prefix() + "D0_InvMass"));
   assert(h_mass);
 
   if (m_svtxEvalStack)
@@ -121,7 +120,7 @@ int QAG4SimulationKFParticle::process_event(PHCompositeNode *topNode)
     D0 = 421,
   };
 
-SvtxTrack* QAG4SimulationKFParticle::getTrack(unsigned int track_id, SvtxTrackMap *trackmap)
+SvtxTrack *QAG4SimulationKFParticle::getTrack(unsigned int track_id, SvtxTrackMap *trackmap)
 {
   SvtxTrack *matched_track = NULL;
 
@@ -133,6 +132,19 @@ SvtxTrack* QAG4SimulationKFParticle::getTrack(unsigned int track_id, SvtxTrackMa
   }
 
   return matched_track;
+}
+
+PHG4Particle *QAG4SimulationKFParticle::getTruthTrack(SvtxTrack* thisTrack)
+{
+  if (!clustereval)
+  {
+    clustereval = m_svtxEvalStack->get_cluster_eval();
+  }
+
+  TrkrDefs::cluskey clusKey = *thisTrack->begin_cluster_keys();
+  PHG4Particle *particle = clustereval->max_truth_particle_by_cluster_energy(clusKey);
+
+  return particle;
 }
 
 CLHEP::HepLorentzVector* QAG4SimulationKFParticle::makeHepLV(PHCompositeNode *topNode, int track_number)
@@ -147,6 +159,9 @@ CLHEP::HepLorentzVector* QAG4SimulationKFParticle::makeHepLV(PHCompositeNode *to
   */
 
   SvtxTrack *track = getTrack(track_number, m_trackMap);
+track->identify();
+  PHG4Particle *g4particle = getTruthTrack(track);
+g4particle->identify();
   CLHEP::HepLorentzVector *lvParticle = NULL;
 
   PHHepMCGenEventMap *m_geneventmap = findNode::getClass<PHHepMCGenEventMap>(topNode, "PHHepMCGenEventMap");
@@ -167,15 +182,21 @@ CLHEP::HepLorentzVector* QAG4SimulationKFParticle::makeHepLV(PHCompositeNode *to
 
   HepMC::GenEvent* theEvent = m_genevt->getEvent();
 
+cout << __FILE__ << "::" << __func__ << "::" << __LINE__ << endl;
   for (HepMC::GenEvent::particle_const_iterator p = theEvent->particles_begin(); p != theEvent->particles_end(); ++p)
   {
-    if ((unsigned int)((*p)->barcode()) == track->get_id())
+cout << __FILE__ << "::" << __func__ << "::" << __LINE__ << endl;
+    if ((*p)->barcode() == g4particle->get_barcode())
     {
+cout << __FILE__ << "::" << __func__ << "::" << __LINE__ << endl;
       for (HepMC::GenVertex::particle_iterator mother = (*p)->production_vertex()->particles_begin(HepMC::parents);
            mother != (*p)->production_vertex()->particles_end(HepMC::parents); ++mother)
       {
-        if (abs((*mother)->barcode()) == MOTHER_ID::D0)
+cout << __FILE__ << "::" << __func__ << "::" << __LINE__ << endl;
+cout << "THe mother ID is " << (*mother)->pdg_id() << endl;
+        if (abs((*mother)->pdg_id()) == MOTHER_ID::D0)
         {
+cout << __FILE__ << "::" << __func__ << "::" << __LINE__ << endl;
           std::cout << "This track came from the correct mother!!!" << std::endl;
 	  double mass = abs((*p)->pdg_id()) == 321 ? 0.4937 : 0.139;
           lvParticle = new CLHEP::HepLorentzVector(track->get_px()
