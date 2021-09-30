@@ -104,7 +104,8 @@ int QAG4SimulationKFParticle::process_event(PHCompositeNode *topNode)
   for(auto& [key, track] : *m_trackMap) 
   {
     SvtxTrack* thisTrack = getTrack(key, m_trackMap);
-    daughters.push_back(*makeHepLV(topNode, thisTrack->get_id()));
+    CLHEP::HepLorentzVector *theVector = makeHepLV(topNode, thisTrack->get_id());
+    if (theVector) daughters.push_back(*theVector);
   } 
   for(auto& output : daughters)
   { 
@@ -159,9 +160,7 @@ CLHEP::HepLorentzVector* QAG4SimulationKFParticle::makeHepLV(PHCompositeNode *to
   */
 
   SvtxTrack *track = getTrack(track_number, m_trackMap);
-track->identify();
   PHG4Particle *g4particle = getTruthTrack(track);
-g4particle->identify();
   CLHEP::HepLorentzVector *lvParticle = NULL;
 
   PHHepMCGenEventMap *m_geneventmap = findNode::getClass<PHHepMCGenEventMap>(topNode, "PHHepMCGenEventMap");
@@ -182,35 +181,35 @@ g4particle->identify();
 
   HepMC::GenEvent* theEvent = m_genevt->getEvent();
 
-cout << __FILE__ << "::" << __func__ << "::" << __LINE__ << endl;
+  bool breakOut = false;
   for (HepMC::GenEvent::particle_const_iterator p = theEvent->particles_begin(); p != theEvent->particles_end(); ++p)
   {
-cout << __FILE__ << "::" << __func__ << "::" << __LINE__ << endl;
+    assert((*p));
     if ((*p)->barcode() == g4particle->get_barcode())
     {
-cout << __FILE__ << "::" << __func__ << "::" << __LINE__ << endl;
       for (HepMC::GenVertex::particle_iterator mother = (*p)->production_vertex()->particles_begin(HepMC::parents);
            mother != (*p)->production_vertex()->particles_end(HepMC::parents); ++mother)
       {
-cout << __FILE__ << "::" << __func__ << "::" << __LINE__ << endl;
-cout << "THe mother ID is " << (*mother)->pdg_id() << endl;
         if (abs((*mother)->pdg_id()) == MOTHER_ID::D0)
         {
-cout << __FILE__ << "::" << __func__ << "::" << __LINE__ << endl;
-          std::cout << "This track came from the correct mother!!!" << std::endl;
-	  double mass = abs((*p)->pdg_id()) == 321 ? 0.4937 : 0.139;
+          int track_PDGID = abs((*p)->pdg_id());
+	  double mass = 0;
+          if (track_PDGID == 321) mass = 0.494;
+          else if (track_PDGID == 211) mass = 0.139;
+          else continue;
           lvParticle = new CLHEP::HepLorentzVector(track->get_px()
                                            ,track->get_py()
                                            ,track->get_pz()
                                            ,mass);
         }
-        else
-        {
-          std::cout << "This track is background" << std::endl;
-        }
+        else continue;
+        break;
       }
+      breakOut = true;
     }
+    if (breakOut) break;
   }
+
   return lvParticle;
 }
 
