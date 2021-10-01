@@ -1,42 +1,18 @@
 #include "QAG4SimulationKFParticle.h"
 
-#include "QAHistManagerDef.h"
-
-#include <g4eval/SvtxClusterEval.h>
-#include <g4eval/SvtxEvalStack.h>
-#include <g4eval/SvtxVertexEval.h>
-
-#include <fun4all/Fun4AllHistoManager.h>
-#include <fun4all/Fun4AllReturnCodes.h>
-#include <fun4all/SubsysReco.h>
-
-#include <trackbase/TrkrDefs.h>  // for cluskey
-
-#include <trackbase_historic/SvtxTrack.h>  // for SvtxTrack
-#include <trackbase_historic/SvtxTrackMap.h>
-#include <trackbase_historic/SvtxVertex.h>
-#include <trackbase_historic/SvtxVertexMap.h>
-
-#include <g4main/PHG4Particle.h>
-#include <g4main/PHG4TruthInfoContainer.h>
-#include <g4main/PHG4VtxPoint.h>
-
-#include <phool/getClass.h>
-
-#include <TH1.h>
-#include <TH2.h>
-#include <TNamed.h>
-#include <TString.h>
-#include <TVector3.h>
-
-#include <cassert>
-#include <cmath>
-#include <iostream>
-#include <map>
-#include <utility>  // for pair
-#include <vector>
-
 using namespace std;
+
+enum MOTHER_ID
+{
+  D0 = 421,
+};
+
+// Create necessary objects
+typedef std::pair<int, float> particle_pair;
+KFParticle_particleList kfp_particleList_evtReco;
+
+//Particle masses are in GeV
+std::map<std::string, particle_pair> particleMasses = kfp_particleList_evtReco.getParticleList();
 
 QAG4SimulationKFParticle::QAG4SimulationKFParticle(const std::string &name)
   : SubsysReco(name)
@@ -68,7 +44,7 @@ int QAG4SimulationKFParticle::InitRun(PHCompositeNode *topNode)
   return Fun4AllReturnCodes::EVENT_OK;
 }
 
-int QAG4SimulationKFParticle::Init(PHCompositeNode */*topNode*/)
+int QAG4SimulationKFParticle::Init(PHCompositeNode * /*topNode*/)
 {
   Fun4AllHistoManager *hm = QAHistManagerDef::getHistoManager();
   assert(hm);
@@ -101,25 +77,27 @@ int QAG4SimulationKFParticle::process_event(PHCompositeNode *topNode)
     m_svtxEvalStack->next_event(topNode);
 
   std::vector<CLHEP::HepLorentzVector> daughters;
-  for(auto& [key, track] : *m_trackMap) 
+  for (auto &[key, track] : *m_trackMap)
   {
-    SvtxTrack* thisTrack = getTrack(key, m_trackMap);
+    SvtxTrack *thisTrack = getTrack(key, m_trackMap);
     CLHEP::HepLorentzVector *theVector = makeHepLV(topNode, thisTrack->get_id());
     if (theVector) daughters.push_back(*theVector);
   }
-  if (daughters.size() >= 2)
+
+  CLHEP::HepLorentzVector mother;
+  for (CLHEP::HepLorentzVector daughter : daughters)
   {
-    CLHEP::HepLorentzVector mother = daughters[0] + daughters[1];
-    h_mass->Fill(mother.m());
-  }  
+    mother += daughter;
+  }
+
+  h_mass->Fill(mother.m());
+
+  cout << "Mother mass = " << mother.m() << endl;
+
   daughters.clear();
+
   return Fun4AllReturnCodes::EVENT_OK;
 }
-
- enum MOTHER_ID
-  {  
-    D0 = 421,
-  };
 
 SvtxTrack *QAG4SimulationKFParticle::getTrack(unsigned int track_id, SvtxTrackMap *trackmap)
 {
@@ -135,7 +113,7 @@ SvtxTrack *QAG4SimulationKFParticle::getTrack(unsigned int track_id, SvtxTrackMa
   return matched_track;
 }
 
-PHG4Particle *QAG4SimulationKFParticle::getTruthTrack(SvtxTrack* thisTrack)
+PHG4Particle *QAG4SimulationKFParticle::getTruthTrack(SvtxTrack *thisTrack)
 {
   if (!clustereval)
   {
@@ -148,17 +126,8 @@ PHG4Particle *QAG4SimulationKFParticle::getTruthTrack(SvtxTrack* thisTrack)
   return particle;
 }
 
-CLHEP::HepLorentzVector* QAG4SimulationKFParticle::makeHepLV(PHCompositeNode *topNode, int track_number)
+CLHEP::HepLorentzVector *QAG4SimulationKFParticle::makeHepLV(PHCompositeNode *topNode, int track_number)
 {
-  /*
-  PHNodeIterator nodeIter(topNode);
-  PHNode *findNode = dynamic_cast<PHNode*>(nodeIter.findFirst("SvtxTrackMap"));
-  if (findNode)
-  {
-    dst_trackmap = findNode::getClass<SvtxTrackMap>(topNode, "SvtxTrackMap");
-  }
-  */
-
   SvtxTrack *track = getTrack(track_number, m_trackMap);
   PHG4Particle *g4particle = getTruthTrack(track);
   CLHEP::HepLorentzVector *lvParticle = NULL;
@@ -174,12 +143,12 @@ CLHEP::HepLorentzVector* QAG4SimulationKFParticle::makeHepLV(PHCompositeNode *to
   PHHepMCGenEvent *m_genevt = m_geneventmap->get(1);
   if (!m_genevt)
   {
-    std::cout <<  "Missing node PHHepMCGenEvent" << std::endl;
+    std::cout << "Missing node PHHepMCGenEvent" << std::endl;
     std::cout << "You will have no mother information" << std::endl;
     return NULL;
   }
 
-  HepMC::GenEvent* theEvent = m_genevt->getEvent();
+  HepMC::GenEvent *theEvent = m_genevt->getEvent();
 
   bool breakOut = false;
   for (HepMC::GenEvent::particle_const_iterator p = theEvent->particles_begin(); p != theEvent->particles_end(); ++p)
@@ -192,15 +161,19 @@ CLHEP::HepLorentzVector* QAG4SimulationKFParticle::makeHepLV(PHCompositeNode *to
       {
         if (abs((*mother)->pdg_id()) == MOTHER_ID::D0)
         {
-          int track_PDGID = abs((*p)->pdg_id());
-	  double mass = 0;
-          if (track_PDGID == 321) mass = 0.494;
-          else if (track_PDGID == 211) mass = 0.139;
-          else continue;
+          double mass = 0;
+          for (auto it = particleMasses.begin(); it != particleMasses.end(); ++it)
+          {
+            if (it->second.first == abs((*p)->pdg_id()))
+            {
+              mass = it->second.second;
+            }
+          }
           lvParticle = new CLHEP::HepLorentzVector();
-          lvParticle->setVectM(CLHEP::Hep3Vector(track->get_px(),track->get_py(),track->get_pz()),mass);	  
+          lvParticle->setVectM(CLHEP::Hep3Vector(track->get_px(), track->get_py(), track->get_pz()), mass);
         }
-        else continue;
+        else
+          continue;
         break;
       }
       breakOut = true;
@@ -224,8 +197,7 @@ int QAG4SimulationKFParticle::load_nodes(PHCompositeNode *topNode)
   return Fun4AllReturnCodes::EVENT_OK;
 }
 
-string
-QAG4SimulationKFParticle::get_histo_prefix()
+string QAG4SimulationKFParticle::get_histo_prefix()
 {
   return string("h_") + Name() + string("_") + m_trackMapName + string("_");
 }

@@ -50,7 +50,7 @@ class QAG4SimulationIntt : public SubsysReco
   TrkrClusterHitAssoc* m_cluster_hit_map = nullptr;
 
   /// hitsets
-  TrkrHitSetContainer  *m_hitsets = nullptr;
+  TrkrHitSetContainer* m_hitsets = nullptr;
 
   /// hit to g4hit association
   TrkrHitTruthAssoc* m_hit_truth_map = nullptr;

@@ -14,6 +14,7 @@ libqa_modules_la_LDFLAGS = \
   -L$(OFFLINE_MAIN)/lib
 
 libqa_modules_la_LIBADD = \
+  -lkfparticle_sphenix \
   -lcalo_io \
   -lfun4all \
   -lg4detectors_io \
