@@ -10,10 +10,10 @@
 #include <g4main/PHG4Particle.h>
 #include <g4main/PHG4TruthInfoContainer.h>
 
-#include <trackbase/TrkrHitSetContainer.h>
 #include <trackbase/TrkrClusterContainer.h>
 #include <trackbase/TrkrClusterHitAssoc.h>
 #include <trackbase/TrkrDefs.h>  // for cluskey, getLayer
+#include <trackbase/TrkrHitSetContainer.h>
 #include <trackbase/TrkrHitTruthAssoc.h>
 #include <trackbase_historic/SvtxTrack.h>
 #include <trackbase_historic/SvtxTrackMap.h>
@@ -61,7 +61,7 @@ int QAG4SimulationTracking::InitRun(PHCompositeNode *topNode)
   return Fun4AllReturnCodes::EVENT_OK;
 }
 
-int QAG4SimulationTracking::Init(PHCompositeNode */*topNode*/)
+int QAG4SimulationTracking::Init(PHCompositeNode * /*topNode*/)
 {
   Fun4AllHistoManager *hm = QAHistManagerDef::getHistoManager();
   assert(hm);
@@ -321,29 +321,30 @@ int QAG4SimulationTracking::process_event(PHCompositeNode *topNode)
     // loop over clusters
     auto hitsetrange = m_hitsets->getHitSets();
     for (auto hitsetitr = hitsetrange.first;
-	 hitsetitr != hitsetrange.second;
-	 ++hitsetitr){
+         hitsetitr != hitsetrange.second;
+         ++hitsetitr)
+    {
       auto range = m_cluster_map->getClusters(hitsetitr->first);
       for (auto clusterIter = range.first; clusterIter != range.second; ++clusterIter)
-	{
-	  // store cluster key
-	  const auto &key = clusterIter->first;
-	  
-	  // loop over associated g4hits
-	  for (const auto &g4hit : find_g4hits(key))
-	    {
-	      const int trkid = g4hit->get_trkid();
-	      auto iter = g4particle_map.lower_bound(trkid);
-	      if (iter != g4particle_map.end() && iter->first == trkid)
-		{
-		  iter->second.insert(key);
-		}
-	      else
-		{
-		  g4particle_map.insert(iter, std::make_pair(trkid, KeySet({key})));
-		}
-	    }
-	}
+      {
+        // store cluster key
+        const auto &key = clusterIter->first;
+
+        // loop over associated g4hits
+        for (const auto &g4hit : find_g4hits(key))
+        {
+          const int trkid = g4hit->get_trkid();
+          auto iter = g4particle_map.lower_bound(trkid);
+          if (iter != g4particle_map.end() && iter->first == trkid)
+          {
+            iter->second.insert(key);
+          }
+          else
+          {
+            g4particle_map.insert(iter, std::make_pair(trkid, KeySet({key})));
+          }
+        }
+      }
     }
   }
 

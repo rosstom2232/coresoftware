@@ -47,7 +47,7 @@ class QAG4SimulationMvtx : public SubsysReco
   TrkrClusterContainer* m_cluster_map = nullptr;
 
   /// hitsets
-  TrkrHitSetContainer  *m_hitsets = nullptr;
+  TrkrHitSetContainer* m_hitsets = nullptr;
 
   /// clusters to hit association
   TrkrClusterHitAssoc* m_cluster_hit_map = nullptr;
