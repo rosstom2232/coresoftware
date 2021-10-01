@@ -85,9 +85,13 @@ int QAG4SimulationKFParticle::process_event(PHCompositeNode *topNode)
   }
 
   CLHEP::HepLorentzVector mother;
-  for (CLHEP::HepLorentzVector daughter : daughters)
+  cout << "Number of dauughters: " << daughters.size() << endl;
+  if (daughters.size() >= 2)
   {
-    mother += daughter;
+    for (CLHEP::HepLorentzVector daughter : daughters)
+    {
+      mother += daughter;
+    }
   }
 
   h_mass->Fill(mother.m());
@@ -170,7 +174,8 @@ CLHEP::HepLorentzVector *QAG4SimulationKFParticle::makeHepLV(PHCompositeNode *to
             }
           }
           lvParticle = new CLHEP::HepLorentzVector();
-          lvParticle->setVectM(CLHEP::Hep3Vector(track->get_px(), track->get_py(), track->get_pz()), mass);
+          //lvParticle->setVectM(CLHEP::Hep3Vector(track->get_px(), track->get_py(), track->get_pz()), mass);
+          lvParticle->setVectM(CLHEP::Hep3Vector(g4particle->get_px(), g4particle->get_py(), g4particle->get_pz()), mass);
         }
         else
           continue;
