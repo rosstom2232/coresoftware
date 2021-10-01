@@ -66,6 +66,27 @@ int QAG4SimulationKFParticle::process_event(PHCompositeNode *topNode)
   // load relevant nodes from NodeTree
   load_nodes(topNode);
 
+  /*
+  * Print HepMC record
+  */
+  PHHepMCGenEventMap *m_geneventmap = findNode::getClass<PHHepMCGenEventMap>(topNode, "PHHepMCGenEventMap");
+  if (!m_geneventmap)
+  {
+    std::cout << "Missing node PHHepMCGenEventMap" << std::endl;
+    std::cout << "You will have no mother information" << std::endl;
+  }
+
+  PHHepMCGenEvent *m_genevt = m_geneventmap->get(1);
+  if (!m_genevt)
+  {
+    std::cout << "Missing node PHHepMCGenEvent" << std::endl;
+    std::cout << "You will have no mother information" << std::endl;
+  }
+
+  HepMC::GenEvent *theEvent = m_genevt->getEvent();
+  theEvent->print();
+  //Delete to here
+
   // histogram manager
   Fun4AllHistoManager *hm = QAHistManagerDef::getHistoManager();
   assert(hm);
@@ -85,14 +106,19 @@ int QAG4SimulationKFParticle::process_event(PHCompositeNode *topNode)
   }
 
   CLHEP::HepLorentzVector mother;
-  for (CLHEP::HepLorentzVector daughter : daughters)
+  cout << "Number of daughters: " << daughters.size() << endl;
+  if (daughters.size() >= 2)
   {
-    mother += daughter;
+    for (CLHEP::HepLorentzVector daughter : daughters)
+    {
+      mother += daughter;
+    }
   }
 
   h_mass->Fill(mother.m());
 
-  cout << "Mother mass = " << mother.m() << endl;
+  cout << "Mother: ( " << mother.px() << ", " << mother.py() << ", " << mother.pz() << ", " << mother.e() << ")" << endl;
+  cout << "Mother mass: " << mother.m() << endl;
 
   daughters.clear();
 
@@ -170,7 +196,10 @@ CLHEP::HepLorentzVector *QAG4SimulationKFParticle::makeHepLV(PHCompositeNode *to
             }
           }
           lvParticle = new CLHEP::HepLorentzVector();
-          lvParticle->setVectM(CLHEP::Hep3Vector(track->get_px(), track->get_py(), track->get_pz()), mass);
+          //lvParticle->setVectM(CLHEP::Hep3Vector(track->get_px(), track->get_py(), track->get_pz()), mass);
+          lvParticle->setVectM(CLHEP::Hep3Vector(g4particle->get_px(), g4particle->get_py(), g4particle->get_pz()), mass);
+          cout << "Daughter: ( " << lvParticle->px() << ", " << lvParticle->py() << ", " << lvParticle->pz() << ", " << lvParticle->e() << ")" << endl;
+          cout << "Daughter mass: " << lvParticle->m() << endl;
         }
         else
           continue;
