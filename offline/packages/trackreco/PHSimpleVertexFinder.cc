@@ -517,31 +517,18 @@ void PHSimpleVertexFinder::checkDCAs(SvtxTrackMap *track_map)
     }
     if (_require_mvtx)
     {
-      unsigned int nmvtx = 0;
-      TrackSeed *siliconseed = tr1->get_silicon_seed();
-      if (!siliconseed)
+      bool passed = passClusterRequirement(tr1);
+      if (!passed)
       {
         continue;
       }
-
-      for (auto clusit = siliconseed->begin_cluster_keys(); clusit != siliconseed->end_cluster_keys(); ++clusit)
-      {
-        if (TrkrDefs::getTrkrId(*clusit) == TrkrDefs::mvtxId)
-        {
-          nmvtx++;
-        }
-        if (nmvtx >= _nmvtx_required)
-        {
-          break;
-        }
-      }
-      if (nmvtx < _nmvtx_required)
+    }
+    if (_require_intt)
+    {
+      bool passed = passClusterRequirement(tr1, "INTT");
+      if (!passed)
       {
         continue;
-      }
-      if (Verbosity() > 3)
-      {
-        std::cout << " tr1 id " << id1 << " has nmvtx at least " << nmvtx << std::endl;
       }
     }
 
@@ -556,31 +543,18 @@ void PHSimpleVertexFinder::checkDCAs(SvtxTrackMap *track_map)
       }
       if (_require_mvtx)
       {
-        unsigned int nmvtx = 0;
-        TrackSeed *siliconseed = tr2->get_silicon_seed();
-        if (!siliconseed)
+        bool passed = passClusterRequirement(tr2);
+        if (!passed)
         {
           continue;
         }
-
-        for (auto clusit = siliconseed->begin_cluster_keys(); clusit != siliconseed->end_cluster_keys(); ++clusit)
-        {
-          if (TrkrDefs::getTrkrId(*clusit) == TrkrDefs::mvtxId)
-          {
-            nmvtx++;
-          }
-          if (nmvtx >= _nmvtx_required)
-          {
-            break;
-          }
-        }
-        if (nmvtx < _nmvtx_required)
+      }
+      if (_require_intt)
+      {
+        bool passed = passClusterRequirement(tr2, "INTT");
+        if (!passed)
         {
           continue;
-        }
-        if (Verbosity() > 3)
-        {
-          std::cout << " tr2 id " << id2 << " has nmvtx at least " << nmvtx << std::endl;
         }
       }
 
@@ -799,31 +773,18 @@ void PHSimpleVertexFinder::checkDCAs()
     }
     if (_require_mvtx)
     {
-      unsigned int nmvtx = 0;
-      TrackSeed *siliconseed = tr1->get_silicon_seed();
-      if (!siliconseed)
+      bool passed = passClusterRequirement(tr1);
+      if (!passed)
       {
         continue;
       }
-
-      for (auto clusit = siliconseed->begin_cluster_keys(); clusit != siliconseed->end_cluster_keys(); ++clusit)
-      {
-        if (TrkrDefs::getTrkrId(*clusit) == TrkrDefs::mvtxId)
-        {
-          nmvtx++;
-        }
-        if (nmvtx >= _nmvtx_required)
-        {
-          break;
-        }
-      }
-      if (nmvtx < _nmvtx_required)
+    }
+    if (_require_intt)
+    {
+      bool passed = passClusterRequirement(tr1, "INTT");
+      if (!passed)
       {
         continue;
-      }
-      if (Verbosity() > 3)
-      {
-        std::cout << " tr1 id " << id1 << " has nmvtx at least " << nmvtx << std::endl;
       }
     }
 
@@ -838,34 +799,20 @@ void PHSimpleVertexFinder::checkDCAs()
       }
       if (_require_mvtx)
       {
-        unsigned int nmvtx = 0;
-        TrackSeed *siliconseed = tr2->get_silicon_seed();
-        if (!siliconseed)
+        bool passed = passClusterRequirement(tr2);
+        if (!passed)
         {
           continue;
-        }
-
-        for (auto clusit = siliconseed->begin_cluster_keys(); clusit != siliconseed->end_cluster_keys(); ++clusit)
-        {
-          if (TrkrDefs::getTrkrId(*clusit) == TrkrDefs::mvtxId)
-          {
-            nmvtx++;
-          }
-          if (nmvtx >= _nmvtx_required)
-          {
-            break;
-          }
-        }
-        if (nmvtx < _nmvtx_required)
-        {
-          continue;
-        }
-        if (Verbosity() > 3)
-        {
-          std::cout << " tr2 id " << id2 << " has nmvtx at least " << nmvtx << std::endl;
         }
       }
-
+      if (_require_intt)
+      {
+        bool passed = passClusterRequirement(tr2, "INTT");
+        if (!passed)
+        {
+          continue;
+        }
+      }
       // find DCA of these two tracks
       if (Verbosity() > 3)
       {
@@ -1323,4 +1270,50 @@ double PHSimpleVertexFinder::getAverage(std::vector<double> &v)
   }
 
   return avge;
+}
+
+bool PHSimpleVertexFinder::passClusterRequirement(SvtxTrack *track, std::string type)
+{
+  bool pass = false;
+
+  std::vector<std::string> acceptable_types = {"MVTX", "INTT"};
+  bool accept_this_type = std::find(acceptable_types.begin(), acceptable_types.end(), type) != acceptable_types.end();
+
+  if (!accept_this_type)
+  {
+    if (Verbosity() > 3)
+    {
+      std::cout << "type " << type << " was not recognised" << std::endl;
+    }
+    return pass;
+  }
+
+  unsigned int nclus = 0;
+  unsigned int _nclus_required = type == "MVTX" ? _nmvtx_required : _nintt_required;
+
+  TrackSeed *siliconseed = track->get_silicon_seed();
+  if (!siliconseed)
+  {
+    return pass;
+  }
+
+  for (auto clusit = siliconseed->begin_cluster_keys(); clusit != siliconseed->end_cluster_keys(); ++clusit)
+  {
+    uint8_t trkrId = type == "MVTX" ? TrkrDefs::mvtxId : TrkrDefs::inttId;
+    if (TrkrDefs::getTrkrId(*clusit) == trkrId)
+    {
+      nclus++;
+    }
+    if (nclus >= _nclus_required)
+    {
+      pass = true;
+    }
+  }
+
+  if (Verbosity() > 3)
+  {
+    std::cout << " track id " << track->get_id() << " has " << nclus << " clusters for " << type << std::endl;
+  }
+
+  return pass;
 }

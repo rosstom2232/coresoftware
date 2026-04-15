@@ -155,64 +155,7 @@ int KFParticle_sPHENIX::process_event(PHCompositeNode *topNode)
     }
     return Fun4AllReturnCodes::EVENT_OK;
   }
- 
-  // Adding BCO Matching  
-  auto* evtHeader = findNode::getClass<EventHeader>(topNode, "EventHeader"); // event header node
-  auto* gl1packet = findNode::getClass<Gl1Packet>(topNode, "GL1RAWHIT");     // gl1 packet node
 
-  if (!gl1packet)
-  {
-  gl1packet = findNode::getClass<Gl1Packet>(topNode, "GL1Packet");
-  }
-
-  if (evtHeader && gl1packet)
-  {
-  const int64_t run = evtHeader->get_RunNumber();
-  const int64_t evn = evtHeader->get_EvtSequence();
-  m_this_event_bco = static_cast<uint64_t>(gl1packet->lValue(0, "BCO"));
-
-    if (Verbosity() >= VERBOSITY_SOME)
-  	{
-	std::cout << "Event start | run: " << run << " event: " << evn << " this_event_bco: " << m_this_event_bco << std::endl;
-	}
-
-  if (run != m_prev_runNumber || evn != m_prev_eventNumber)
-  {
-
-    if (Verbosity() >= VERBOSITY_SOME)
-    {
-	std::cout << "New event detected" << std::endl;
-    	std::cout << "Previous event BCO: " << m_prev_event_bco << std::endl;
-	}
-    //m_last_event_bco = m_prev_event_bco;
-     m_last_event_bco = (run == m_prev_runNumber) ? m_prev_event_bco : -1;
-	m_prev_event_bco = m_this_event_bco;
-
-    m_prev_runNumber = run;
-    m_prev_eventNumber = evn;
-
-    if (Verbosity() >= VERBOSITY_SOME)
-    {
-	std::cout << "Updated values | last_event_bco: " << m_last_event_bco
-              << " stored_prev_event_bco: " << m_prev_event_bco
-              << std::endl;
-	}
-  }
- }
-  else
-  {
-	
-    if (Verbosity() >= VERBOSITY_SOME)
-  {
-	std::cout << "EventHeader or GL1 packet not found" << std::endl;
-	}
-  m_this_event_bco = -1;
-  m_last_event_bco = -1;
-  m_prev_event_bco = -1;
-  m_prev_runNumber = -1;
-  m_prev_eventNumber = -1;
-  }
-// End BCO matching here
   if (!m_use_fake_pv)
   {
     if (m_use_mbd_vertex)
@@ -241,6 +184,65 @@ int KFParticle_sPHENIX::process_event(PHCompositeNode *topNode)
     }
   }
   
+ 
+  // Adding BCO Matching  
+  auto* evtHeader = findNode::getClass<EventHeader>(topNode, "EventHeader"); // event header node
+  auto* gl1packet = findNode::getClass<Gl1Packet>(topNode, "GL1RAWHIT");     // gl1 packet node
+
+  if (!gl1packet)
+  {
+    gl1packet = findNode::getClass<Gl1Packet>(topNode, "GL1Packet");
+  }
+
+  if (evtHeader && gl1packet)
+  {
+    const int64_t run = evtHeader->get_RunNumber();
+    const int64_t evn = evtHeader->get_EvtSequence();
+    m_this_event_bco = static_cast<uint64_t>(gl1packet->lValue(0, "BCO"));
+
+    if (Verbosity() >= VERBOSITY_A_LOT)
+    {
+      std::cout << "Event start | run: " << run << " event: " << evn << " this_event_bco: " << m_this_event_bco << std::endl;
+    }
+
+    if (run != m_prev_runNumber || evn != m_prev_eventNumber)
+    {
+
+      if (Verbosity() >= VERBOSITY_A_LOT)
+      {
+        std::cout << "New event detected" << std::endl;
+      	std::cout << "Previous event BCO: " << m_prev_event_bco << std::endl;
+      }
+ 
+      m_last_event_bco = (run == m_prev_runNumber) ? m_prev_event_bco : -1;
+      m_prev_event_bco = m_this_event_bco;
+
+      m_prev_runNumber = run;
+      m_prev_eventNumber = evn;
+
+      if (Verbosity() >= VERBOSITY_A_LOT)
+      {
+        std::cout << "Updated values | last_event_bco: " << m_last_event_bco
+                  << " stored_prev_event_bco: " << m_prev_event_bco
+                  << std::endl;
+      }
+    }
+  }
+  else
+  {
+	
+    if (Verbosity() >= VERBOSITY_MORE)
+    {
+      std::cout << "KFParticle: EventHeader or GL1 packet not found" << std::endl;
+    }
+    m_this_event_bco = -1;
+    m_last_event_bco = -1;
+    m_prev_event_bco = -1;
+    m_prev_runNumber = -1;
+    m_prev_eventNumber = -1;
+  }
+  // End BCO matching here
+
   createDecay(topNode, mother, vertex_kfparticle, daughters, intermediates, nPVs);
   if (!m_has_intermediates_sPHENIX)
   {
