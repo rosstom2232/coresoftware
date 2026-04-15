@@ -87,7 +87,7 @@ my %proddesc = (
     "46" => "Herwig Photonjet ptmin = 10 GeV",
     "47" => "Herwig Photonjet ptmin = 20 GeV",
     "48" => "JS pythia8 Jet ptmin = 8 GeV",
-    "49" => "JS pythia8 Jet ptmin = 80 GeV",
+    "49" => "JS pythia8 Jet ptmin = 80 GeV"
     );
 
 my %pileupdesc = (
