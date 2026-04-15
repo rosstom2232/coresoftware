@@ -83,7 +83,6 @@ class EMCalShowerShapes : public SubsysReco
     float dphimax {std::numeric_limits<float>::quiet_NaN()};
     float mean_time {std::numeric_limits<float>::quiet_NaN()};
     float iso04_emcal {std::numeric_limits<float>::quiet_NaN()};
-    //float e32_to_e35 {std::numeric_limits<float>::quiet_NaN()};
   };
 
   bool LoadEMCalNodes(PHCompositeNode *topNode);

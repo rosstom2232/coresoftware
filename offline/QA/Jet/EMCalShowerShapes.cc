@@ -117,29 +117,29 @@ int EMCalShowerShapes::Init(PHCompositeNode* /*topNode*/)
   h_cluster_et = new TH1F(vecHistNames[0].data(), "", 120, 0, 30);
   h_cluster_et->GetXaxis()->SetTitle("E_{T} [GeV]");
 
-  h_e11oe33 = new TH1F(vecHistNames[1].data(), "", 25, 0, 1);
+  h_e11oe33 = new TH1F(vecHistNames[1].data(), "", 26, -0.02, 1.02);
   h_e11oe33->GetXaxis()->SetTitle("e11/e33");
 
-  h_e33oe55 = new TH1F(vecHistNames[2].data(), "", 25, 0, 1);
+  h_e33oe55 = new TH1F(vecHistNames[2].data(), "", 26, -0.02, 1.02);
   h_e33oe55->GetXaxis()->SetTitle("e33/e55");
 
-  h_e55oe77 = new TH1F(vecHistNames[3].data(), "", 25, 0, 1);
+  h_e55oe77 = new TH1F(vecHistNames[3].data(), "", 26, -0.02, 1.02);
   h_e55oe77->GetXaxis()->SetTitle("e55/e77");
   
-  h_e32oe35 = new TH1F(vecHistNames[4].data(), "", 25, 0, 1);
+  h_e32oe35 = new TH1F(vecHistNames[4].data(), "", 26, -0.02, 1.02);
   h_e32oe35->GetXaxis()->SetTitle("e32/e35");
 
   h_weta = new TH1F(vecHistNames[5].data(), "", 120, 0, 2);
-  h_weta->GetXaxis()->SetTitle("w_{#eta}");
+  h_weta->GetXaxis()->SetTitle("w#eta");
 
   h_wphi = new TH1F(vecHistNames[6].data(), "", 120, 0, 2);
-  h_wphi->GetXaxis()->SetTitle("w_{#phi}");
+  h_wphi->GetXaxis()->SetTitle("w#phi");
 
   h_weta_cogx = new TH1F(vecHistNames[7].data(), "", 50, 0, 2);
-  h_weta_cogx->GetXaxis()->SetTitle("w_{#eta}^{cogx}");
+  h_weta_cogx->GetXaxis()->SetTitle("w#eta_cogx");
 
   h_wphi_cogx = new TH1F(vecHistNames[8].data(), "", 50, 0, 2);
-  h_wphi_cogx->GetXaxis()->SetTitle("w_{#phi}^{cogx}");
+  h_wphi_cogx->GetXaxis()->SetTitle("w#phi_cogx");
 
   h_detamax = new TH1F(vecHistNames[9].data(), "", 10, -0.5, 9.5);
   h_detamax->GetXaxis()->SetTitle("detamax");
@@ -155,11 +155,11 @@ int EMCalShowerShapes::Init(PHCompositeNode* /*topNode*/)
 
   h_weta_vs_et = new TH2F(vecHistNames[13].data(), "", 120, 0, 30, 120, 0, 6);
   h_weta_vs_et->GetXaxis()->SetTitle("E_{T} [GeV]");
-  h_weta_vs_et->GetYaxis()->SetTitle("w_{#eta}");
+  h_weta_vs_et->GetYaxis()->SetTitle("w#eta");
 
   h_wphi_vs_et = new TH2F(vecHistNames[14].data(), "", 120, 0, 30, 120, 0, 6);
   h_wphi_vs_et->GetXaxis()->SetTitle("E_{T} [GeV]");
-  h_wphi_vs_et->GetYaxis()->SetTitle("w_{#phi}");
+  h_wphi_vs_et->GetYaxis()->SetTitle("w#phi");
 
   return Fun4AllReturnCodes::EVENT_OK;
 }
@@ -235,7 +235,7 @@ int EMCalShowerShapes::process_event(PHCompositeNode *topNode)
   }
 
   const float vertex_z = GetVertexZ(topNode);
-  if (m_doMbdZvtxCut && std::abs(vertex_z) > m_mbdZvtxMax)
+  if (m_doMbdZvtxCut && std::abs(vertex_z) >= m_mbdZvtxMax)
   {
     return Fun4AllReturnCodes::EVENT_OK;
   }
@@ -252,7 +252,7 @@ int EMCalShowerShapes::process_event(PHCompositeNode *topNode)
     }
 
     const float eta = RawClusterUtility::GetPseudorapidity(*cluster, vertex_vec);
-    if (m_doClusterEtaCut && std::abs(eta) > m_clusterEtaMax)
+    if (m_doClusterEtaCut && std::abs(eta) >= m_clusterEtaMax)
     {
       continue;
     }
@@ -265,6 +265,16 @@ int EMCalShowerShapes::process_event(PHCompositeNode *topNode)
     {
       continue;
     }
+
+    /*
+    if ( (data.e32 / data.e35) > 1 )
+    {
+      std::cout << "e32/e35 > 1!!! e32 = "<< data.e32 << " e35 = " << data.e35 << std::endl;
+    }
+    if ( (data.e32 / data.e35) == 1 )
+    {
+      std::cout << "e32/e35 = 1~~~ e32 = "<< data.e32 << " e35 = " << data.e35 << std::endl;
+    }*/
 
     h_cluster_et->Fill(et);
     h_e11oe33->Fill(data.e11 / data.e33);
@@ -282,68 +292,6 @@ int EMCalShowerShapes::process_event(PHCompositeNode *topNode)
     h_weta_vs_et->Fill(et, data.weta);
     h_wphi_vs_et->Fill(et, data.wphi);
 
-    /*
-    if (std::isfinite(et))
-    {
-      h_cluster_et->Fill(et);
-    }
-    if (data.e33 > 0)
-    {
-      h_e11oe33->Fill(data.e11 / data.e33);
-    }
-    if (data.e55 > 0)
-    {
-      h_e33oe55->Fill(data.e33 / data.e55);
-    }
-    if (data.e77 > 0)
-    {
-      h_e55oe77->Fill(data.e55 / data.e77);
-    }
-    if (std::isfinite(data.weta))
-    {
-      h_weta->Fill(data.weta);
-    }
-    if (std::isfinite(data.wphi))
-    {
-      h_wphi->Fill(data.wphi);
-    }
-    if (std::isfinite(data.weta_cogx))
-    {
-      h_weta_cogx->Fill(data.weta_cogx);
-    }
-    if (std::isfinite(data.wphi_cogx))
-    {
-      h_wphi_cogx->Fill(data.wphi_cogx);
-    }
-    if (std::isfinite(data.detamax))
-    {
-      h_detamax->Fill(data.detamax);
-    }
-    if (std::isfinite(data.dphimax))
-    {
-      h_dphimax->Fill(data.dphimax);
-    }
-    if (std::isfinite(data.mean_time))
-    {
-      h_mean_time->Fill(data.mean_time);
-    }
-    if (std::isfinite(data.iso04_emcal))
-    {
-      h_iso04_emcal->Fill(data.iso04_emcal);
-    }
-    if (std::isfinite(data.e32_to_e35))
-    {
-      h_e32_to_e35->Fill(data.e32_to_e35);
-    }
-    if (std::isfinite(et) && std::isfinite(data.weta))
-    {
-      h_weta_vs_et->Fill(et, data.weta);
-    }
-    if (std::isfinite(et) && std::isfinite(data.wphi))
-    {
-      h_wphi_vs_et->Fill(et, data.wphi);
-    }
-    */
   }
 
   return Fun4AllReturnCodes::EVENT_OK;
@@ -547,7 +495,6 @@ bool EMCalShowerShapes::CalculateShowerShapes(RawCluster* cluster, float cluster
   data.dphimax = dphimax;
   data.mean_time = clusteravgtime;
   data.iso04_emcal = CalculateLayerET(cluster_eta, cluster_phi, 0.4F, m_emc_tower_container, m_geomEM, vertex_z) - cluster_et;
-  //data.e32_to_e35 = (e35 > 0) ? (e32 / e35) : std::numeric_limits<float>::quiet_NaN();
 
   return true;
 }
