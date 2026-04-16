@@ -515,21 +515,13 @@ void PHSimpleVertexFinder::checkDCAs(SvtxTrackMap *track_map)
     {
       continue;
     }
-    if (_require_mvtx)
+    if (_require_mvtx && !passClusterRequirement(tr1))
     {
-      bool passed = passClusterRequirement(tr1);
-      if (!passed)
-      {
-        continue;
-      }
+      continue;
     }
-    if (_require_intt)
+    if (_require_intt && !passClusterRequirement(tr1, "INTT"))
     {
-      bool passed = passClusterRequirement(tr1, "INTT");
-      if (!passed)
-      {
-        continue;
-      }
+      continue;
     }
 
     // look for close DCA matches with all other such tracks
@@ -541,21 +533,13 @@ void PHSimpleVertexFinder::checkDCAs(SvtxTrackMap *track_map)
       {
         continue;
       }
-      if (_require_mvtx)
+      if (_require_mvtx && !passClusterRequirement(tr2))
       {
-        bool passed = passClusterRequirement(tr2);
-        if (!passed)
-        {
-          continue;
-        }
+        continue;
       }
-      if (_require_intt)
+      if (_require_intt && !passClusterRequirement(tr2, "INTT"))
       {
-        bool passed = passClusterRequirement(tr2, "INTT");
-        if (!passed)
-        {
-          continue;
-        }
+        continue;
       }
 
       // find DCA of these two tracks
@@ -771,21 +755,13 @@ void PHSimpleVertexFinder::checkDCAs()
     {
       continue;
     }
-    if (_require_mvtx)
+    if (_require_mvtx && !passClusterRequirement(tr1))
     {
-      bool passed = passClusterRequirement(tr1);
-      if (!passed)
-      {
-        continue;
-      }
+      continue;
     }
-    if (_require_intt)
+    if (_require_intt && !passClusterRequirement(tr1, "INTT"))
     {
-      bool passed = passClusterRequirement(tr1, "INTT");
-      if (!passed)
-      {
-        continue;
-      }
+      continue;
     }
 
     // look for close DCA matches with all other such tracks
@@ -797,21 +773,13 @@ void PHSimpleVertexFinder::checkDCAs()
       {
         continue;
       }
-      if (_require_mvtx)
+      if (_require_mvtx && !passClusterRequirement(tr2))
       {
-        bool passed = passClusterRequirement(tr2);
-        if (!passed)
-        {
-          continue;
-        }
+        continue;
       }
-      if (_require_intt)
+      if (_require_intt && !passClusterRequirement(tr2, "INTT"))
       {
-        bool passed = passClusterRequirement(tr2, "INTT");
-        if (!passed)
-        {
-          continue;
-        }
+        continue;
       }
       // find DCA of these two tracks
       if (Verbosity() > 3)
@@ -1272,7 +1240,7 @@ double PHSimpleVertexFinder::getAverage(std::vector<double> &v)
   return avge;
 }
 
-bool PHSimpleVertexFinder::passClusterRequirement(SvtxTrack *track, std::string type)
+bool PHSimpleVertexFinder::passClusterRequirement(SvtxTrack *track, const std::string &type)
 {
   bool pass = false;
 

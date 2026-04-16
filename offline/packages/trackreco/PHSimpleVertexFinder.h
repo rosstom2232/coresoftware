@@ -77,7 +77,7 @@ class PHSimpleVertexFinder : public SubsysReco
   void removeOutlierTrackPairs();
   double getMedian(std::vector<double> &v);
   double getAverage(std::vector<double> &v);
-  bool passClusterRequirement(SvtxTrack *track, std::string type = "MVTX");
+  bool passClusterRequirement(SvtxTrack *track, const std::string &type = "MVTX");
 
   SvtxTrackMap *_track_map{nullptr};
   TrkrClusterContainer* _cluster_map{nullptr};
