@@ -285,10 +285,18 @@ int EMCalShowerShapes::process_event(PHCompositeNode *topNode)
     }
 
     h_cluster_et->Fill(et);
-    if (data.e33 > 0) h_e11oe33->Fill(data.e11 / data.e33);
-    if (data.e55 > 0) h_e33oe55->Fill(data.e33 / data.e55);
-    if (data.e77 > 0) h_e55oe77->Fill(data.e55 / data.e77);
-    if (data.e35 > 0) h_e32oe35->Fill(data.e32 / data.e35);
+    if (data.e33 > 0) {
+      h_e11oe33->Fill(data.e11 / data.e33);
+    }
+    if (data.e55 > 0) {
+      h_e33oe55->Fill(data.e33 / data.e55);
+    }
+    if (data.e77 > 0) {
+      h_e55oe77->Fill(data.e55 / data.e77);
+    }
+    if (data.e35 > 0) {
+      h_e32oe35->Fill(data.e32 / data.e35);
+    }
     h_weta->Fill(data.weta);
     h_wphi->Fill(data.wphi);
     h_weta_cogx->Fill(data.weta_cogx);
@@ -343,7 +351,7 @@ bool EMCalShowerShapes::CalculateShowerShapes(RawCluster* cluster, float cluster
       cluster_total_e += towerinfo->get_energy();
     }
 
-    constexpr int totalphibins = 256;
+    int totalphibins = 256;
     auto dphiwrap = [totalphibins](int towerphi, int maxiphi_arg)
     {
       int idphi = towerphi - maxiphi_arg;
