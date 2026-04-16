@@ -30,6 +30,7 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TStyle.h>
+#include <TSystem.h>
 
 #include <algorithm>
 #include <cassert>
@@ -77,12 +78,11 @@ int EMCalShowerShapes::Init(PHCompositeNode* /*topNode*/)
   delete m_analyzer;
   m_analyzer = new TriggerAnalyzer();
 
-  gStyle->SetOptTitle(0);
   m_manager = QAHistManagerDef::getHistoManager();
   if (!m_manager)
   {
     std::cerr << PHWHERE << "PANIC: couldn't grab histogram manager!" << std::endl;
-    assert(m_manager);
+    gSystem->Exit(1);
   }
 
   std::string smallModuleName = m_modulename;
@@ -161,12 +161,32 @@ int EMCalShowerShapes::Init(PHCompositeNode* /*topNode*/)
   h_wphi_vs_et->GetXaxis()->SetTitle("E_{T} [GeV]");
   h_wphi_vs_et->GetYaxis()->SetTitle("w#phi");
 
+  // Register histograms here to preserve them even if files are closedß
+  m_manager->registerHisto(h_cluster_et);
+  m_manager->registerHisto(h_e11oe33);
+  m_manager->registerHisto(h_e33oe55);
+  m_manager->registerHisto(h_e55oe77);
+  m_manager->registerHisto(h_e32oe35);
+  m_manager->registerHisto(h_weta);
+  m_manager->registerHisto(h_wphi);
+  m_manager->registerHisto(h_weta_cogx);
+  m_manager->registerHisto(h_wphi_cogx);
+  m_manager->registerHisto(h_detamax);
+  m_manager->registerHisto(h_dphimax);
+  m_manager->registerHisto(h_mean_time);
+  m_manager->registerHisto(h_iso04_emcal);
+  m_manager->registerHisto(h_weta_vs_et);
+  m_manager->registerHisto(h_wphi_vs_et);
+
   return Fun4AllReturnCodes::EVENT_OK;
 }
 
 int EMCalShowerShapes::InitRun(PHCompositeNode* topNode)
 {
-  LoadEMCalNodes(topNode);
+  if (!LoadEMCalNodes(topNode))
+  {
+    return Fun4AllReturnCodes::ABORTRUN;
+  }
   return Fun4AllReturnCodes::EVENT_OK;
 }
 
@@ -211,12 +231,12 @@ int EMCalShowerShapes::process_event(PHCompositeNode *topNode)
       std::cout << PHWHERE << "EMCalShowerShapes::process_event - missing node " << m_inputnode << std::endl;
       m_reportedMissingClusterNode = true;
     }
-    return Fun4AllReturnCodes::EVENT_OK;
+    return Fun4AllReturnCodes::ABORTRUN;
   }
 
   if (!LoadEMCalNodes(topNode))
   {
-    return Fun4AllReturnCodes::EVENT_OK;
+    return Fun4AllReturnCodes::ABORTRUN;
   }
 
   if (m_doTrgSelect)
@@ -263,16 +283,6 @@ int EMCalShowerShapes::process_event(PHCompositeNode *topNode)
     {
       continue;
     }
-
-    /*
-    if ( (data.e32 / data.e35) > 1 )
-    {
-      std::cout << "e32/e35 > 1!!! e32 = "<< data.e32 << " e35 = " << data.e35 << std::endl;
-    }
-    if ( (data.e32 / data.e35) == 1 )
-    {
-      std::cout << "e32/e35 = 1~~~ e32 = "<< data.e32 << " e35 = " << data.e35 << std::endl;
-    }*/
 
     h_cluster_et->Fill(et);
     if (data.e33 > 0) h_e11oe33->Fill(data.e11 / data.e33);
@@ -575,41 +585,25 @@ float EMCalShowerShapes::CalculateLayerET(float seed_eta, float seed_phi, float 
   return layer_et;
 }
 
-int EMCalShowerShapes::ResetEvent(PHCompositeNode* /*topNode*/)
-{
-  return Fun4AllReturnCodes::EVENT_OK;
-}
+//int EMCalShowerShapes::ResetEvent(PHCompositeNode* /*topNode*/)
+//{
+//  return Fun4AllReturnCodes::EVENT_OK;
+//}
 
-int EMCalShowerShapes::EndRun(const int /*runnumber*/)
-{
-  return Fun4AllReturnCodes::EVENT_OK;
-}
+//int EMCalShowerShapes::EndRun(const int /*runnumber*/)
+//{
+//  return Fun4AllReturnCodes::EVENT_OK;
+//}
 
-int EMCalShowerShapes::End(PHCompositeNode* /*topNode*/)
-{
-  m_manager->registerHisto(h_cluster_et);
-  m_manager->registerHisto(h_e11oe33);
-  m_manager->registerHisto(h_e33oe55);
-  m_manager->registerHisto(h_e55oe77);
-  m_manager->registerHisto(h_e32oe35);
-  m_manager->registerHisto(h_weta);
-  m_manager->registerHisto(h_wphi);
-  m_manager->registerHisto(h_weta_cogx);
-  m_manager->registerHisto(h_wphi_cogx);
-  m_manager->registerHisto(h_detamax);
-  m_manager->registerHisto(h_dphimax);
-  m_manager->registerHisto(h_mean_time);
-  m_manager->registerHisto(h_iso04_emcal);
-  m_manager->registerHisto(h_weta_vs_et);
-  m_manager->registerHisto(h_wphi_vs_et);
+//int EMCalShowerShapes::End(PHCompositeNode* /*topNode*/)
+//{
+//  return Fun4AllReturnCodes::EVENT_OK;
+//}
 
-  return Fun4AllReturnCodes::EVENT_OK;
-}
-
-int EMCalShowerShapes::Reset(PHCompositeNode* /*topNode*/)
-{
-  return Fun4AllReturnCodes::EVENT_OK;
-}
+//int EMCalShowerShapes::Reset(PHCompositeNode* /*topNode*/)
+//{
+//  return Fun4AllReturnCodes::EVENT_OK;
+//}
 
 void EMCalShowerShapes::Print(const std::string &what) const
 {
