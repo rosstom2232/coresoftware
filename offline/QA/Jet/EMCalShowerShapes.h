@@ -61,6 +61,11 @@ class EMCalShowerShapes : public SubsysReco
     m_doClusterEtaCut = apply;
   }
 
+  void SetApplyClusterETCut(const bool apply)
+  {
+    m_doClusterETCut = apply;
+  }
+
   void SetClusterEtaMax(const float maxeta)
   {
     m_clusterEtaMax = maxeta;
@@ -108,6 +113,8 @@ class EMCalShowerShapes : public SubsysReco
   float m_mbdZvtxMax {60.0F};
   bool m_doClusterEtaCut {true};
   float m_clusterEtaMax {0.7F};
+  bool m_doClusterETCut {true};
+  float m_clusterETMin {5.0F};
 
   TH1* h_cluster_et {nullptr};
   TH1* h_e11oe33 {nullptr};

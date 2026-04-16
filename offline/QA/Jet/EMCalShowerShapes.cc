@@ -172,14 +172,8 @@ int EMCalShowerShapes::InitRun(PHCompositeNode* topNode)
 
 bool EMCalShowerShapes::LoadEMCalNodes(PHCompositeNode *topNode)
 {
-  if (!m_emc_tower_container)
-  {
-    m_emc_tower_container = findNode::getClass<TowerInfoContainer>(topNode, "TOWERINFO_CALIB_CEMC");
-  }
-  if (!m_geomEM)
-  {
-    m_geomEM = findNode::getClass<RawTowerGeomContainer>(topNode, "TOWERGEOM_CEMC");
-  }
+  m_emc_tower_container = findNode::getClass<TowerInfoContainer>(topNode, "TOWERINFO_CALIB_CEMC");
+  m_geomEM = findNode::getClass<RawTowerGeomContainer>(topNode, "TOWERGEOM_CEMC");
 
   const bool have_nodes = (m_emc_tower_container && m_geomEM);
   if (!have_nodes && !m_reportedMissingCaloNodes)
@@ -259,6 +253,10 @@ int EMCalShowerShapes::process_event(PHCompositeNode *topNode)
 
     const float phi = RawClusterUtility::GetAzimuthAngle(*cluster, vertex_vec);
     const float et = cluster->get_energy() / std::cosh(eta);
+    if (m_doClusterETCut && et < m_clusterETMin)
+    {
+      continue;
+    }
 
     ShowerShapeData data;
     if (!CalculateShowerShapes(cluster, eta, phi, et, vertex_z, data))
@@ -277,10 +275,10 @@ int EMCalShowerShapes::process_event(PHCompositeNode *topNode)
     }*/
 
     h_cluster_et->Fill(et);
-    h_e11oe33->Fill(data.e11 / data.e33);
-    h_e33oe55->Fill(data.e33 / data.e55);
-    h_e55oe77->Fill(data.e55 / data.e77);
-    h_e32oe35->Fill(data.e32 / data.e35);
+    if (data.e33 > 0) h_e11oe33->Fill(data.e11 / data.e33);
+    if (data.e55 > 0) h_e33oe55->Fill(data.e33 / data.e55);
+    if (data.e77 > 0) h_e55oe77->Fill(data.e55 / data.e77);
+    if (data.e35 > 0) h_e32oe35->Fill(data.e32 / data.e35);
     h_weta->Fill(data.weta);
     h_wphi->Fill(data.wphi);
     h_weta_cogx->Fill(data.weta_cogx);
