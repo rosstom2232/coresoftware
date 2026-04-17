@@ -284,9 +284,9 @@ class KFParticle_Tools : protected KFParticle_MVA
   void removeDuplicates(std::vector<std::vector<int>> &v);
   void removeDuplicates(std::vector<std::vector<std::string>> &v);
 
-  void printSelectionCheck(std::string parameter, float min, float val, float max);
-  void printSelectionCheck(std::string start, std::string accept, std::string reject, std::string end, bool equality);
-  void printSelectionCheck(std::string info, unsigned int value);
+  void printSelectionCheck(const std::string &parameter, float min, float val, float max);
+  void printSelectionCheck(const std::string &start, const std::string a&ccept, const std::string &reject, const std::string &end, bool equality);
+  void printSelectionCheck(const std::string &info, unsigned int value);
   std::string accept_colour = "32";
   std::string reject_colour = "31";
 };

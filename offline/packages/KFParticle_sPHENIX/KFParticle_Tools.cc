@@ -1423,7 +1423,7 @@ bool KFParticle_Tools::checkTrackAndVertexMatch(KFParticle vDaughters[], int nTr
   return vertexAndTrackMatch;
 }
 
-void KFParticle_Tools::printSelectionCheck(std::string parameter, float min, float val, float max)
+void KFParticle_Tools::printSelectionCheck(const std::string &parameter, float min, float val, float max)
 {
   std::string trailer = "the " + parameter + " requirement\033[0m";
   std::string passOrFail = isInRange(min, val, max) ? "\033[1;" + accept_colour + "mPassed " + trailer
@@ -1431,7 +1431,7 @@ void KFParticle_Tools::printSelectionCheck(std::string parameter, float min, flo
   std::cout << passOrFail << ". Lower bound = " << min << ", measured value =  " << val << ", upper bound = " << max << std::endl; 
 }
 
-void KFParticle_Tools::printSelectionCheck(std::string start, std::string accept, std::string reject, std::string end, bool equality)
+void KFParticle_Tools::printSelectionCheck(const std::string &start, const std::string &accept, const std::string &reject, const std::string &end, bool equality)
 {
   std::string decision = equality ? accept : reject;
   std::string colour = equality ? accept_colour : reject_colour;
@@ -1439,7 +1439,7 @@ void KFParticle_Tools::printSelectionCheck(std::string start, std::string accept
   std::cout << "\033[1;" << colour << "m" << start << spacing << decision << " " << end << "\033[0m" << std::endl;
 }
 
-void KFParticle_Tools::printSelectionCheck(std::string info, unsigned int value)
+void KFParticle_Tools::printSelectionCheck(const std::string &info, unsigned int value)
 {
   std::string colour = value > 0 ? accept_colour : reject_colour;
   std::cout << info << " = \033[1;" + colour + "m" + value + "\033[0m" << std::endl;
