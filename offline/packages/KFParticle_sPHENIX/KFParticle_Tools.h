@@ -285,6 +285,10 @@ class KFParticle_Tools : protected KFParticle_MVA
   void removeDuplicates(std::vector<std::vector<std::string>> &v);
 
   void printSelectionCheck(std::string parameter, float min, float val, float max);
+  void printSelectionCheck(std::string start, std::string accept, std::string reject, std::string end, bool equality);
+  void printSelectionCheck(std::string info, unsigned int value);
+  std::string accept_colour = "32";
+  std::string reject_colour = "31";
 };
 
 #endif  // KFPARTICLESPHENIX_KFPARTICLETOOLS_H

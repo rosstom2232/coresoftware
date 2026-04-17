@@ -78,20 +78,9 @@ void KFParticle_eventReconstruction::createDecay(PHCompositeNode* topNode, std::
 
   if (m_verbosity >= 10)
   {
-    unsigned int i_number = daughterParticles.size();
-    std::string s_number = i_number > 0 ? "\033[1;32m" + std::to_string(i_number) + "\033[0m"
-                                        : "\033[1;31m" + std::to_string(i_number) + "\033[0m";
-    std::cout << "Number of daughters passing state selection = " << s_number << std::endl;
-
-    i_number = goodTrackIndex.size();
-    s_number = i_number > 0 ? "\033[1;32m" + std::to_string(i_number) + "\033[0m"
-                            : "\033[1;31m" + std::to_string(i_number) + "\033[0m";
-    std::cout << "Number of daughters passing track selection = " <<  s_number<< std::endl;
-
-    i_number = primaryVertices.size();
-    s_number = i_number > 0 ? "\033[1;32m" + std::to_string(i_number) + "\033[0m"
-                            : "\033[1;31m" + std::to_string(i_number) + "\033[0m";
-    std::cout << "Number of PVs passing selection =  " << s_number << std::endl;
+    printSelectionCheck("Number of daughters passing state selection", daughterParticles.size());
+    printSelectionCheck("Number of daughters passing track selection", goodTrackIndex.size());
+    printSelectionCheck("Number of PVs passing selection", primaryVertices.size());
   }
 
   if (!m_has_intermediates)
@@ -122,9 +111,7 @@ void KFParticle_eventReconstruction::buildBasicChain(std::vector<KFParticle>& se
 
   if (m_verbosity >= 10)
   { 
-    std::string number = goodTracksThatMeet.size() > 0 ? "\033[1;32m" + std::to_string(goodTracksThatMeet.size()) + "\033[0m"
-                                                       : "\033[1;31m" + std::to_string(goodTracksThatMeet.size()) + "\033[0m";
-    std::cout << "Number of SVs passing selection = " << number << std::endl;
+    printSelectionCheck("Number of SVs passing selection", goodTracksThatMeet.size());
   }
 
   getCandidateDecay(selectedMotherBasic, selectedVertexBasic, selectedDaughtersBasic, daughterParticlesBasic,
@@ -164,9 +151,7 @@ void KFParticle_eventReconstruction::buildChain(std::vector<KFParticle>& selecte
 
     if (m_verbosity >= 10)
     { 
-      std::string number = goodTracksThatMeet.size() > 0 ? "\033[1;32m" + std::to_string(goodTracksThatMeet.size()) + "\033[0m"
-                                                         : "\033[1;31m" + std::to_string(goodTracksThatMeet.size()) + "\033[0m";
-      std::cout << "Number of SVs passing selection = " << number << std::endl;
+      printSelectionCheck("Number of SVs passing selection", goodTracksThatMeet.size());
     }
 
     getCandidateDecay(potentialIntermediates[i], vertices, potentialDaughters[i], daughterParticlesAdv,

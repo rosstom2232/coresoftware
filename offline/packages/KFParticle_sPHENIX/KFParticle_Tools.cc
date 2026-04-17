@@ -472,9 +472,7 @@ int KFParticle_Tools::getTracksFromVertex(PHCompositeNode *topNode, const KFPart
   
   if (m_verbosity >= 10)
   {
-    std::string decision = goodTrack ? "\033[1;32mThis track passed the selection\033[0m"
-                                     : "\033[1;31mThis track failed the selection\033[0m";
-    std::cout << decision << std::endl;
+    printSelectionCheck("This track", "passed", "failed", "the selection", goodTrack);
     if (m_verbosity >= 11)
     {
       printSelectionCheck("Track pT", m_track_min_pt, pt, m_track_max_pt);
@@ -555,10 +553,7 @@ std::vector<std::vector<int>> KFParticle_Tools::findTwoProngs(std::vector<KFPart
 
         if (m_verbosity >= 10)
         {
-          std::string decision = (dca <= m_comb_DCA) && (dca_xy <= m_comb_DCA_xy) ? 
-                                 "\033[1;32mThis track pair passed the DCA selection\033[0m"
-                               : "\033[1;31mThis track pair failed the DCA selection\033[0m";
-          std::cout << decision << std::endl;
+          printSelectionCheck("This track pair", "passed", "failed", "the DCA selection", (dca <= m_comb_DCA) && (dca_xy <= m_comb_DCA_xy));
           if (m_verbosity >= 11)
           {
             printSelectionCheck("Pair DCA", 0., dca, m_comb_DCA);
@@ -577,10 +572,7 @@ std::vector<std::vector<int>> KFParticle_Tools::findTwoProngs(std::vector<KFPart
 
           if (nTracks == 2 && m_verbosity >= 10)
           {
-            std::string decision = (vertexchi2ndof <= m_vertex_chi2ndof) && (sv_radial_position >= m_min_radial_SV) ?
-                                   "\033[1;32mThis track pair passed the quality and radius selection\033[0m"
-                                 : "\033[1;31mThis track pair failed the quality and radius selection\033[0m";
-            std::cout << decision << std::endl;
+            printSelectionCheck("This track pair", "passed", "failed", "the quality and radius selection", (vertexchi2ndof <= m_vertex_chi2ndof) && (sv_radial_position >= m_min_radial_SV));
             if (m_verbosity >= 11)
             {
               printSelectionCheck("SV chi^2/nDoFA", 0., vertexchi2ndof, m_vertex_chi2ndof);
@@ -636,10 +628,7 @@ std::vector<std::vector<int>> KFParticle_Tools::findNProngs(std::vector<KFPartic
 
          if (m_verbosity >= 10)
          {
-           std::string decision = (dca <= m_comb_DCA) && (dca_xy <= m_comb_DCA_xy) ? 
-                                  "\033[1;32mThis track combined with a SV set\033[0m"
-                                : "\033[1;31mThis track did not combine with a SV set\033[0m";
-           std::cout << decision << std::endl;
+           printSelectionCheck("This track", "combined", "did not combine", "with a SV set", (dca <= m_comb_DCA) && (dca_xy <= m_comb_DCA_xy));
            if (m_verbosity >= 11)
            {
              printSelectionCheck("Pair DCA", 0., dca, m_comb_DCA);
@@ -669,10 +658,7 @@ std::vector<std::vector<int>> KFParticle_Tools::findNProngs(std::vector<KFPartic
 
           if ((unsigned int) nRequiredTracks == nProngs && m_verbosity >= 10)
           {
-            std::string decision = (vertexchi2ndof <= m_vertex_chi2ndof) && (sv_radial_position >= m_min_radial_SV) ?
-                                   "\033[1;32mThis SV combination passed the quality and radius selection\033[0m"
-                                 : "\033[1;31mThis SV combination failed the quality and radius selection\033[0m";
-            std::cout << decision << std::endl;
+            printSelectionCheck("This SV combination", "passed", "failed", "the quality and radius selection", (vertexchi2ndof <= m_vertex_chi2ndof) && (sv_radial_position >= m_min_radial_SV));
             if (m_verbosity >= 11)
             {
               printSelectionCheck("SV chi^2/nDoFA", 0., vertexchi2ndof, m_vertex_chi2ndof);
@@ -999,8 +985,8 @@ std::tuple<KFParticle, bool> KFParticle_Tools::buildMother(KFParticle vDaughters
 
     if (m_verbosity >= 11)
     {
-      std::string decision = crossings.size() == 1 ? "\033[1;32mAll tracks are from the same BC\033[0m" : "\033[1;31mTracks are from different BC\033[0m";
-      std::cout << decision << std::endl;
+      bool accept = crossings.size() == 1;
+      printSelectionCheck("", "All tracks are from the same BC", "Tracks are from different BC", "", accept);
     }
   }
 
@@ -1019,9 +1005,7 @@ std::tuple<KFParticle, bool> KFParticle_Tools::buildMother(KFParticle vDaughters
 
       if (m_verbosity >= 10)
       {
-        std::string decision = goodCandidate ? "\033[1;32mAccepted the intermediate selection\033[0m" : "\033[1;31mRejected the intermediate selection\033[0m";
-        std::cout << decision << std::endl;
-
+        printSelectionCheck("", "Accepted", "Rejected", "the intermediate selection", goodCandidate);
         if (m_verbosity >= 11)
         {
           printSelectionCheck("Intermediate DIRA", m_intermediate_min_dira[k], intermediate_DIRA, FLT_MAX);
@@ -1033,13 +1017,10 @@ std::tuple<KFParticle, bool> KFParticle_Tools::buildMother(KFParticle vDaughters
 
   if (m_verbosity >= 10)
   {
-    std::string decision = goodCandidate ? "\033[1;32mAccepted the mother selection\033[0m" : "\033[1;31mRejected the mother selection\033[0m";
-    std::cout << decision << std::endl;
-
+    printSelectionCheck("", "Accepted", "Rejected", "the mother selection", goodCandidate);
     if (m_verbosity >= 11)
     {
-      decision = chargeCheck ? "\033[1;32mVertex charge is right\033[0m" : "\033[1;31mVertex charge is wrong\033[0m";
-      std::cout << decision << std::endl;
+      printSelectionCheck("Vertex charge is", "right", "wrong", "", chargeCheck);
       printSelectionCheck("Invariant Mass", min_mass, calculated_mass, max_mass);
       printSelectionCheck("Mother pT", min_pt, calculated_pt, FLT_MAX);
       printSelectionCheck("Mother SV volume", 0., calculateEllipsoidVolume(mother), max_vertex_volume);
@@ -1093,9 +1074,7 @@ void KFParticle_Tools::constrainToVertex(KFParticle &particle, bool &goodCandida
 
   if (m_verbosity >= 10)
   {
-    std::string decision = goodCandidate ? "\033[1;32mPassed the PV constraint\033[0m" : "\033[1;31mFailed the PV constraint\033[0m";
-    std::cout << decision << std::endl;
-
+    printSelectionCheck("", "Passed", "Failed", "the PV constraint", goodCandidate);
     if (m_verbosity >= 11)
     {
       printSelectionCheck("Mother DIRA", m_dira_min, calculated_dira, m_dira_max);
@@ -1446,7 +1425,22 @@ bool KFParticle_Tools::checkTrackAndVertexMatch(KFParticle vDaughters[], int nTr
 
 void KFParticle_Tools::printSelectionCheck(std::string parameter, float min, float val, float max)
 {
-  std::string passOrFail = isInRange(min, val, max) ? "\033[1;32mPassed the " + parameter + " requirement\033[0m" 
-                                                    : "\033[1;31mFailed the " + parameter + " requirement\033[0m";
+  std::string trailer = "the " + parameter + " requirement\033[0m";
+  std::string passOrFail = isInRange(min, val, max) ? "\033[1;" + accept_colour + "mPassed " + trailer
+                                                    : "\033[1;" + reject_colour + "mFailed " + trailer;
   std::cout << passOrFail << ". Lower bound = " << min << ", measured value =  " << val << ", upper bound = " << max << std::endl; 
+}
+
+void KFParticle_Tools::printSelectionCheck(std::string start, std::string accept, std::string reject, std::string end, bool equality)
+{
+  std::string decision = equality ? accept : reject;
+  std::string colour = equality ? accept_colour : reject_colour;
+  std::string spacing = start.empty() ? "" : " ";
+  std::cout << "\033[1;" << colour << "m" << start << spacing << decision << " " << end << "\033[0m" << std::endl;
+}
+
+void KFParticle_Tools::printSelectionCheck(std::string info, unsigned int value)
+{
+  std::string colour = value > 0 ? accept_colour : reject_colour;
+  std::cout << info << " = \033[1;" + colour + "m" + value + "\033[0m" << std::endl;
 }
