@@ -1333,7 +1333,10 @@ void KFParticle_Tools::init_dEdx_fits()
 
   if (m_use_local_PID_file)
   {
-    if (m_verbosity > 4) std::cout << PHWHERE << " using local file " << m_local_PID_filename << std::endl;
+    if (m_verbosity > 4)
+    {
+      std::cout << PHWHERE << " using local file " << m_local_PID_filename << std::endl;
+    }
     // new method is independent of charge
     filefit->GetObject("pi_band",f_pion_plus);
     filefit->GetObject("K_band",f_kaon_plus);
