@@ -532,8 +532,8 @@ void HFTrackEfficiency::resetBranches()
     m_reco_track_phi[iTrack] = std::numeric_limits<float>::quiet_NaN();
     m_true_track_PID[iTrack] = std::numeric_limits<float>::quiet_NaN();
     m_reco_track_chi2nDoF[iTrack] = std::numeric_limits<float>::quiet_NaN();
-    m_reco_track_silicon_seeds[iTrack] = std::numeric_limits<int>::quiet_NaN();
-    m_reco_track_tpc_seeds[iTrack] = std::numeric_limits<int>::quiet_NaN();
+    m_reco_track_silicon_seeds[iTrack] = -1;
+    m_reco_track_tpc_seeds[iTrack] = -1;
   }
 
   m_primary_vtx_x = std::numeric_limits<float>::quiet_NaN();
