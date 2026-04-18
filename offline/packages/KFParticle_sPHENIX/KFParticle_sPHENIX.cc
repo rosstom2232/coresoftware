@@ -136,55 +136,13 @@ int KFParticle_sPHENIX::InitRun(PHCompositeNode *topNode)
 }
 
 int KFParticle_sPHENIX::process_event(PHCompositeNode *topNode)
-{
-  
+{ 
   std::vector<KFParticle> mother;
   std::vector<KFParticle> vertex_kfparticle;
   std::vector<std::vector<KFParticle>> daughters;
   std::vector<std::vector<KFParticle>> intermediates;
   int nPVs;
   int multiplicity;
-
-  SvtxTrackMap *check_trackmap = findNode::getClass<SvtxTrackMap>(topNode, m_trk_map_node_name);
-  multiplicity = check_trackmap->size();
-
-  if (check_trackmap->empty())
-  {
-    if (Verbosity() >= VERBOSITY_SOME)
-    {
-      std::cout << "KFParticle: Event skipped as there are no tracks" << std::endl;
-    }
-    return Fun4AllReturnCodes::EVENT_OK;
-  }
-
-  if (!m_use_fake_pv)
-  {
-    if (m_use_mbd_vertex)
-    {
-      MbdVertexMap* check_vertexmap = findNode::getClass<MbdVertexMap>(topNode, "MbdVertexMap");
-      if (check_vertexmap->empty())
-      {
-        if (Verbosity() >= VERBOSITY_SOME)
-        {
-          std::cout << "KFParticle: Event skipped as there are no vertices" << std::endl;
-        }
-        return Fun4AllReturnCodes::EVENT_OK;
-      }
-    }
-    else
-    {
-      SvtxVertexMap* check_vertexmap = findNode::getClass<SvtxVertexMap>(topNode, m_vtx_map_node_name);
-      if (check_vertexmap->empty())
-      {
-        if (Verbosity() >= VERBOSITY_SOME)
-        {
-          std::cout << "KFParticle: Event skipped as there are no vertices" << std::endl;
-        }
-        return Fun4AllReturnCodes::EVENT_OK;
-      }
-    }
-  }
-  
  
   // Adding BCO Matching  
   auto* evtHeader = findNode::getClass<EventHeader>(topNode, "EventHeader"); // event header node
@@ -243,6 +201,47 @@ int KFParticle_sPHENIX::process_event(PHCompositeNode *topNode)
     m_prev_eventNumber = -1;
   }
   // End BCO matching here
+
+  SvtxTrackMap *check_trackmap = findNode::getClass<SvtxTrackMap>(topNode, m_trk_map_node_name);
+  multiplicity = check_trackmap->size();
+
+  if (check_trackmap->empty())
+  {
+    if (Verbosity() >= VERBOSITY_SOME)
+    {
+      std::cout << "KFParticle: Event skipped as there are no tracks" << std::endl;
+    }
+    return Fun4AllReturnCodes::EVENT_OK;
+  }
+
+  if (!m_use_fake_pv)
+  {
+    if (m_use_mbd_vertex)
+    {
+      MbdVertexMap* check_vertexmap = findNode::getClass<MbdVertexMap>(topNode, "MbdVertexMap");
+      if (check_vertexmap->empty())
+      {
+        if (Verbosity() >= VERBOSITY_SOME)
+        {
+          std::cout << "KFParticle: Event skipped as there are no vertices" << std::endl;
+        }
+        return Fun4AllReturnCodes::EVENT_OK;
+      }
+    }
+    else
+    {
+      SvtxVertexMap* check_vertexmap = findNode::getClass<SvtxVertexMap>(topNode, m_vtx_map_node_name);
+      if (check_vertexmap->empty())
+      {
+        if (Verbosity() >= VERBOSITY_SOME)
+        {
+          std::cout << "KFParticle: Event skipped as there are no vertices" << std::endl;
+        }
+        return Fun4AllReturnCodes::EVENT_OK;
+      }
+    }
+  }
+  
 
   createDecay(topNode, mother, vertex_kfparticle, daughters, intermediates, nPVs);
   if (!m_has_intermediates_sPHENIX)

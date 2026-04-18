@@ -574,13 +574,18 @@ void PHSimpleVertexFinder::checkDCAsZF(SvtxTrackMap *track_map)
     //    tr1->identify();
  
     TrackSeed *siliconseed = tr1->get_silicon_seed();
-    if (_require_mvtx)
-      {
-	if (!siliconseed)
-	  {
-	    continue;
-	  }
-      }
+    if ((_require_mvtx || _require_intt) && !siliconseed)
+    {
+      continue;
+    }
+    if (_require_mvtx && !passClusterRequirement(tr1, "MVTX"))
+    {
+      continue;
+    }
+    if (_require_intt && !passClusterRequirement(tr1, "INTT"))
+    {
+      continue;
+    }
     TrackSeed *tpcseed = tr1->get_tpc_seed();
 
     std::vector<Acts::Vector3> global_vec;

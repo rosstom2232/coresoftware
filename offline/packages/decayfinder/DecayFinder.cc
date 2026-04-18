@@ -455,7 +455,7 @@ int DecayFinder::findDecay(PHCompositeNode* topNode)
     if (!m_genevt)
     {
       std::cout << "DecayFinder: Missing node PHHepMCGenEvent" << std::endl;
-      return false;
+      continue;
     }
 
     HepMC::GenEvent* theEvent = m_genevt->getEvent();

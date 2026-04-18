@@ -1445,5 +1445,5 @@ void KFParticle_Tools::printSelectionCheck(const std::string &start, const std::
 void KFParticle_Tools::printSelectionCheck(const std::string &info, unsigned int value)
 {
   std::string colour = value > 0 ? accept_colour : reject_colour;
-  std::cout << info << " = \033[1;" + colour + "m" + value + "\033[0m" << std::endl;
+  std::cout << info << " = \033[1;" << colour << "m" << value << "\033[0m" << std::endl;
 }
