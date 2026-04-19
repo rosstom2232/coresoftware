@@ -404,8 +404,7 @@ bool HFTrackEfficiency::findTracks(PHCompositeNode *topNode, Decay decay)
             switch (id)
             {
             case TrkrDefs::mvtxId:
-              ++m_reco_track_silicon_seeds[index];
-              break;
+              [[fallthrough]];
             case TrkrDefs::inttId:
               ++m_reco_track_silicon_seeds[index];
               break;
