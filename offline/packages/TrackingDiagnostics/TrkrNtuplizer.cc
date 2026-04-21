@@ -1386,53 +1386,8 @@ void TrkrNtuplizer::fillOutputNtuples(PHCompositeNode* topNode)
   }
 
   //-----------------------
-  // fill the Vertex NTuple
+  // fill the Vertex NTuple and fixed NaN placeholders 
   //-----------------------
- /* bool doit = true;
-  if (_ntp_vertex && doit)
-  {
-    if (Verbosity() > 1)
-    {
-      std::cout << "Filling ntp_vertex " << std::endl;
-      std::cout << "start vertex time:                " << _timer->get_accumulated_time() / 1000. << " sec" << std::endl;
-      _timer->restart();
-    }
-    float fx_vertex[n_vertex::vtxsize];
-    for (float& i : fx_vertex)
-    {
-      i = 0;
-    }
-    //    SvtxVertexMap* vertexmap = nullptr;
-    //    vertexmap = findNode::getClass<SvtxVertexMap>(topNode, "SvtxVertexMapActs");  // Acts vertices
-    float vx = std::numeric_limits<float>::quiet_NaN();
-    float vy = std::numeric_limits<float>::quiet_NaN();
-    float vz = std::numeric_limits<float>::quiet_NaN();
-    float ntracks = std::numeric_limits<float>::quiet_NaN();
-    fx_vertex[vtxnvx] = vx;
-    fx_vertex[vtxnvy] = vy;
-    fx_vertex[vtxnvz] = vz;
-    fx_vertex[vtxnntracks] = ntracks;
-    if (Verbosity() > 1)
-    {
-      std::cout << " adding vertex data " << std::endl;
-    }
-    float* vertex_data = new float[((int) (n_info::infosize)) + n_event::evsize + n_vertex::vtxsize];
-    std::copy(fx_event, fx_event + n_event::evsize, vertex_data);
-    std::copy(fx_vertex, fx_vertex + n_vertex::vtxsize, vertex_data + n_event::evsize);
-    std::copy(fx_info, fx_info + ((int) (n_info::infosize)), vertex_data + n_event::evsize + n_vertex::vtxsize);
-    _ntp_vertex->Fill(vertex_data);
-    delete[] vertex_data;
-
-  }
-  if (Verbosity() > 1)
-  {
-    _timer->stop();
-    std::cout << "vertex time:                " << _timer->get_accumulated_time() / 1000. << " sec" << std::endl;
-  }*/
-
-  //-----------------------
-  // Fix Nan placeholders for vertex variables
-  // //-----------------------
   bool doit = true;
   if (_ntp_vertex && doit)
   {
