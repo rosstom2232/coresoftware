@@ -390,6 +390,8 @@ bool HFTrackEfficiency::findTracks(PHCompositeNode *topNode, Decay decay)
         m_reco_track_eta[index] = m_dst_track->get_eta();
         m_reco_track_phi[index] = m_dst_track->get_phi();
         m_reco_track_chi2nDoF[index] = m_dst_track->get_chisq() / m_dst_track->get_ndf();
+        m_reco_track_silicon_seeds[index] = 0;
+        m_reco_track_tpc_seeds[index] = 0;
 
         for (auto state_iter = m_dst_track->begin_states();
         state_iter != m_dst_track->end_states();

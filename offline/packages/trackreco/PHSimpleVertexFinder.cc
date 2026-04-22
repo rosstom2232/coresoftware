@@ -515,7 +515,7 @@ void PHSimpleVertexFinder::checkDCAs(SvtxTrackMap *track_map)
     {
       continue;
     }
-    if (_require_mvtx && !passClusterRequirement(tr1))
+    if (_require_mvtx && !passClusterRequirement(tr1, "MVTX"))
     {
       continue;
     }
@@ -533,7 +533,7 @@ void PHSimpleVertexFinder::checkDCAs(SvtxTrackMap *track_map)
       {
         continue;
       }
-      if (_require_mvtx && !passClusterRequirement(tr2))
+      if (_require_mvtx && !passClusterRequirement(tr2, "MVTX"))
       {
         continue;
       }
@@ -574,7 +574,9 @@ void PHSimpleVertexFinder::checkDCAsZF(SvtxTrackMap *track_map)
     //    tr1->identify();
  
     TrackSeed *siliconseed = tr1->get_silicon_seed();
-    if ((_require_mvtx || _require_intt) && !siliconseed)
+    const bool needs_mvtx_seed = _require_mvtx && _nmvtx_required > 0;
+    const bool needs_intt_seed = _require_intt && _nintt_required > 0;
+    if ((needs_mvtx_seed || needs_intt_seed) && !siliconseed)
     {
       continue;
     }
@@ -760,7 +762,7 @@ void PHSimpleVertexFinder::checkDCAs()
     {
       continue;
     }
-    if (_require_mvtx && !passClusterRequirement(tr1))
+    if (_require_mvtx && !passClusterRequirement(tr1, "MVTX"))
     {
       continue;
     }
@@ -778,7 +780,7 @@ void PHSimpleVertexFinder::checkDCAs()
       {
         continue;
       }
-      if (_require_mvtx && !passClusterRequirement(tr2))
+      if (_require_mvtx && !passClusterRequirement(tr2, "MVTX"))
       {
         continue;
       }
@@ -1265,7 +1267,8 @@ bool PHSimpleVertexFinder::passClusterRequirement(SvtxTrack *track, const std::s
   unsigned int _nclus_required = type == "MVTX" ? _nmvtx_required : _nintt_required;
 
   TrackSeed *siliconseed = track->get_silicon_seed();
-  if (!siliconseed)
+  bool needs_clus = _nclus_required > 0;
+  if (needs_clus && !siliconseed)
   {
     return pass;
   }

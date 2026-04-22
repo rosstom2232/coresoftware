@@ -194,18 +194,17 @@ int KFParticle_sPHENIX::process_event(PHCompositeNode *topNode)
     {
       std::cout << "KFParticle: EventHeader or GL1 packet not found" << std::endl;
     }
-    m_this_event_bco = -1;
-    m_last_event_bco = -1;
-    m_prev_event_bco = -1;
-    m_prev_runNumber = -1;
-    m_prev_eventNumber = -1;
+    m_this_event_bco = 0;
+    m_last_event_bco = 0;
+    m_prev_event_bco = 0;
+    m_prev_runNumber = 0;
+    m_prev_eventNumber = 0;
   }
   // End BCO matching here
 
   SvtxTrackMap *check_trackmap = findNode::getClass<SvtxTrackMap>(topNode, m_trk_map_node_name);
-  multiplicity = check_trackmap->size();
 
-  if (check_trackmap->empty())
+  if (!check_trackmap || check_trackmap->empty())
   {
     if (Verbosity() >= VERBOSITY_SOME)
     {
@@ -213,6 +212,7 @@ int KFParticle_sPHENIX::process_event(PHCompositeNode *topNode)
     }
     return Fun4AllReturnCodes::EVENT_OK;
   }
+  multiplicity = check_trackmap->size();
 
   if (!m_use_fake_pv)
   {
