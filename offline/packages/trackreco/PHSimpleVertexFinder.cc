@@ -1260,19 +1260,22 @@ bool PHSimpleVertexFinder::passClusterRequirement(SvtxTrack *track, const std::s
     {
       std::cout << "type " << type << " was not recognised" << std::endl;
     }
-    return pass;
+    return false;
+  }
+
+  unsigned int _nclus_required = type == "MVTX" ? _nmvtx_required : _nintt_required;
+  if (_nclus_required == 0)
+  {
+    return true;
+  }
+
+  TrackSeed *siliconseed = track->get_silicon_seed();
+  if (!siliconseed)
+  {
+    return false;
   }
 
   unsigned int nclus = 0;
-  unsigned int _nclus_required = type == "MVTX" ? _nmvtx_required : _nintt_required;
-
-  TrackSeed *siliconseed = track->get_silicon_seed();
-  bool needs_clus = _nclus_required > 0;
-  if (needs_clus && !siliconseed)
-  {
-    return pass;
-  }
-
   for (auto clusit = siliconseed->begin_cluster_keys(); clusit != siliconseed->end_cluster_keys(); ++clusit)
   {
     uint8_t trkrId = type == "MVTX" ? TrkrDefs::mvtxId : TrkrDefs::inttId;
