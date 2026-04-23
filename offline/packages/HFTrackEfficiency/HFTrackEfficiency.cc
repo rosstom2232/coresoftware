@@ -401,7 +401,10 @@ bool HFTrackEfficiency::findTracks(PHCompositeNode *topNode, Decay decay)
           if (tstate->get_pathlength() != 0)  // The first track state is an extrapolation so has no cluster
           {
             auto stateckey = tstate->get_cluskey();
-            if (stateckey == TrkrDefs::CLUSKEYMAX) continue;
+            if (stateckey == TrkrDefs::CLUSKEYMAX)
+            {
+              continue;
+            }
             uint8_t id = TrkrDefs::getTrkrId(stateckey);
 
             switch (id)
