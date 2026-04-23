@@ -995,6 +995,10 @@ if (defined $prodtype)
     {
         $embedok = 1;
 	$filenamestring = "pythia8_Jet5";
+	{
+	    $doubleok = 1;
+	    $filenamestring = sprintf("%s_pythia8_Detroit",$filenamestring);
+	}
 	if (! defined $nopileup)
 	{
 	    if (defined $embed)
