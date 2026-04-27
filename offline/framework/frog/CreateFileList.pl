@@ -1001,6 +1001,7 @@ if (defined $prodtype)
     {
         $embedok = 1;
 	$filenamestring = "pythia8_Jet5";
+	if (defined $double)
 	{
 	    $doubleok = 1;
 	    $filenamestring = sprintf("%s_pythia8_Detroit",$filenamestring);
@@ -1423,7 +1424,7 @@ if (defined $prodtype)
         $pileupstring = $pp_pileupstring;
 	&commonfiletypes();
     }
-        elsif ($prodtype == 49)
+    elsif ($prodtype == 49)
     {
         $embedok = 1;
 	$filenamestring = "pythia8_Jet80";
